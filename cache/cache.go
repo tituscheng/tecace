@@ -1,22 +1,23 @@
 package cache
 
 import (
+	"fmt"
 	"tecace/googleapi"
 )
 
-var keys = syncKeysFromSheet()
+var keys = make(map[string]bool)
 
-func syncKeysFromSheet() map[string]bool {
-	result := make(map[string]bool)
+func SyncKeysFromSheet() {
+
 	data, err := googleapi.Get()
 	if err != nil {
-		return result
+		return
 	}
 
 	for k := range data {
-		result[k] = true
+		fmt.Printf("Loading key: %s\n", k)
+		keys[k] = true
 	}
-	return result
 }
 
 func AddKey(key string) {

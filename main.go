@@ -10,6 +10,7 @@ import (
 	"tecace/response"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -41,8 +42,15 @@ func main() {
 		log.Fatalf("error loading %s file\n", envFile)
 	}
 
+	cache.SyncKeysFromSheet()
+
 	// Establish APIs
 	app := fiber.New()
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "https://gofiber.io, https://gofiber.net, http://localhost:8080",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
 	app.Get(ROUTE_PATH_GET_ALL, getAll)
 	app.Post(ROUTE_PATH_POST_DATA, postData)
@@ -88,6 +96,7 @@ func postData(c *fiber.Ctx) error {
 
 func deleteData(c *fiber.Ctx) error {
 	key := c.Params(KEY)
+	fmt.Printf("DELETE /data/%s\n", key)
 	if cache.HasKey(key) {
 		err := googleapi.Delete(key)
 		if err != nil {
